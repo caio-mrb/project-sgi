@@ -2,9 +2,9 @@ node_modules/
 
 dist/
 
-.DS_Store  # macOS
-Thumbs.db  # Windows
-*.log      # Logs gerais
+.DS_Store 
+Thumbs.db  
+*.log      
 
 .cache/
 .temp/
