@@ -898,9 +898,9 @@
 			"name":"gold.003",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.4544757306575775,
-					0.39543238282203674,
-					0.3752700984477997,
+					0.8732038140296936,
+					0.9753326773643494,
+					1,
 					1
 				],
 				"roughnessFactor":0
@@ -930,12 +930,12 @@
 			"name":"black.003",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.007025785744190216,
-					0.007183961104601622,
-					0.02039698325097561,
+					0.22470033168792725,
+					0.2212238907814026,
+					0.2212238907814026,
 					1
 				],
-				"metallicFactor":0.08951613306999207
+				"metallicFactor":0.06532258540391922
 			}
 		},
 		{
@@ -1268,12 +1268,9 @@
 				"index":22
 			},
 			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":23
-				},
 				"metallicFactor":0,
 				"metallicRoughnessTexture":{
-					"index":24
+					"index":23
 				}
 			}
 		},
@@ -1282,11 +1279,11 @@
 			"name":"laminate_floor_02",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":25
+					"index":24
 				},
 				"metallicFactor":0,
 				"metallicRoughnessTexture":{
-					"index":26
+					"index":25
 				}
 			}
 		}
@@ -2013,10 +2010,6 @@
 		{
 			"sampler":0,
 			"source":25
-		},
-		{
-			"sampler":0,
-			"source":26
 		}
 	],
 	"images":[
@@ -2134,11 +2127,6 @@
 			"mimeType":"image/jpeg",
 			"name":"Plaster_Wall_normal",
 			"uri":"textures/Plaster_Wall_normal.jpg"
-		},
-		{
-			"mimeType":"image/jpeg",
-			"name":"Plaster_Wall_basecolor",
-			"uri":"textures/Plaster_Wall_basecolor.jpg"
 		},
 		{
 			"mimeType":"image/png",

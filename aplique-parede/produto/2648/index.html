@@ -282,7 +282,7 @@
                                     <svg class="w-12 h-12 animate-spin stroke-rose-500 mb-4" viewBox="0 0 276 276" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M245.507 68.5C222.7 33.2942 183.07 10 138 10C67.3075 10 10 67.3075 10 138C10 208.692 67.3075 266 138 266C183.07 266 222.7 242.706 245.507 207.5" stroke-width="20" stroke-linecap="round"/>
                                     </svg>
-                                    <p class="text-lg font-medium text-gray-700">Carregando Cena 3D...</p>
+                                    <p class="text-lg font-medium text-gray-700">A carregar cena 3D...</p>
                                 </div>
                             </div>
                         </div>
@@ -398,7 +398,7 @@
                     </div>
                 </div>
                 <div class="dropdown relative w-full mr-2 mt-4">
-                    
+
                     <button class="dropdown-toggle flex items-center justify-between w-full h-12 border border-black p-2 text-black font-bold hover:drop-shadow bg-white">
                         <div class="flex items-center">
                             <img src="../../../images/produto/2648/1.jpg" alt="Aplique Preto" id="dropdown-image" class="w-8 h-fit mr-4 rounded-full border">
@@ -409,14 +409,14 @@
                         </svg>
                     </button>
                     <div class="hidden dropdown-content absolute z-10 w-full bg-white border border-black mt-1">
-                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="../../../images/produto/2648/1.jpg" data-text="Preto">
+                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="../../../images/produto/2648/1.jpg" data-text="Preto" onclick="updateAbajurMaterial('black')">
                             <img src="../../../images/produto/2648/1.jpg" alt="Aplique Preto" class="w-8 h-fit mr-4 rounded-full border"> Preto
                         </button>
-                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="https://via.placeholder.com/20/ff0000/ffffff" data-text="Option 2">
-                            <img src="https://via.placeholder.com/20/ff0000/ffffff" alt="Option 2" class="w-8 h-fit mr-4 rounded-full"> Option 2
+                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="https://via.placeholder.com/20/ff0000/ffffff" data-text="Madeira" onclick="updateAbajurMaterial('wood')">
+                            <img src="https://via.placeholder.com/20/ff0000/ffffff" alt="Aplique Madeira" class="w-8 h-fit mr-4 rounded-full"> Madeira
                         </button>
-                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="https://via.placeholder.com/20/00ff00/ffffff" data-text="Option 3">
-                            <img src="https://via.placeholder.com/20/00ff00/ffffff" alt="Option 3" class="w-8 h-fit mr-4 rounded-full"> Option 3
+                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="https://via.placeholder.com/20/00ff00/ffffff" data-text="Inox" onclick="updateAbajurMaterial('inox')">
+                            <img src="https://via.placeholder.com/20/00ff00/ffffff" alt="Aplique Inox" class="w-8 h-fit mr-4 rounded-full"> Inox
                         </button>
                     </div>
                 </div>
@@ -445,9 +445,9 @@
                             </svg>
                         </button>
                         <div class="hidden dropdown-content absolute z-10 w-full bg-white border border-black mt-1">
-                            <button class="dropdown-item text-left px-4 py-2 w-full text-gray-700" data-text="Esquerda">Esquerda</button>
-                            <button class="dropdown-item text-left px-4 py-2 w-full text-gray-700" data-text="Frente">Frente</button>
-                            <button class="dropdown-item text-left px-4 py-2 w-full text-gray-700" data-text="Direita">Direita</button>
+                            <button class="dropdown-item text-left px-4 py-2 w-full text-gray-700" data-text="Direita" onclick="playToFrame(0);">Direita</button>
+                            <button class="dropdown-item text-left px-4 py-2 w-full text-gray-700" data-text="Frente" onclick="playToFrame(150);">Frente</button>
+                            <button class="dropdown-item text-left px-4 py-2 w-full text-gray-700" data-text="Esquerda" onclick="playToFrame(290);">Esquerda</button>
                         </div>
                     </div>
 

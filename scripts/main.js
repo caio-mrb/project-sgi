@@ -18,11 +18,25 @@ const SceneState = {
     //Lighting components
     sky: null,
     sun: null,
+    pointLight: null,
+    spotLight: null,
     ambientLight: null,
     hemisphereLight: null,
-    // Loading state
+    //Loading state
     loadingComplete: false,
-    isLoading: true
+    isLoading: true,
+};
+
+const AnimationState = {
+    isPlaying: false,
+    currentFrame: 0,
+    targetFrame: 0,
+    direction: 0, // -1 for reverse, 1 for forward, 0 for stopped
+    animations: [],
+    mixer: null,
+    speed: 1.5,
+    onFrameCallback: null,
+    clock: new THREE.Clock()
 };
 
 // Configuration constants
@@ -37,12 +51,12 @@ const CONFIG = {
     },
     LIGHTING: {
         POINT_LIGHT: {
-            INTENSITY: 3,
+            INTENSITY: 10,
             DISTANCE: 1.25
         },
         SPOT_LIGHT: {
-            INTENSITY: 100,
-            DISTANCE: 10
+            INTENSITY: 40,
+            DISTANCE: 13
         },
         HEMISPHERE: {
             SKY_COLOR: 0xffffff,
@@ -63,13 +77,19 @@ const CONFIG = {
         AZIMUTH: 90
     },
     ANIMATION: {
-        MIN_FRAME_TIME: 1 / 60
+        FRAMES_PER_SECOND: 60
     }
 };
 
-// Make toggle function available globally
+//Global functions
 window.toggleViewType = toggleViewType;
 window.updateDaytime = updateDaytime;
+window.updateAbajurMaterial = updateAbajurMaterial;
+
+
+window.playToFrame = playToFrame;
+window.stopAnimation = stopAnimation;
+window.setAnimationSpeed = setAnimationSpeed;
 
 function initializeRenderer(container) {
     if (!container) {
@@ -175,15 +195,26 @@ function updateDaytime(elevation, azimuth) {
         SceneState.ambientLight.intensity = CONFIG.LIGHTING.AMBIENT.INTENSITY * intensity;
     }
 
+    if(SceneState.pointLight) {
+        SceneState.pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY / intensity;
+    }
+    
+    if(SceneState.spotLight) {
+        SceneState.spotLight.intensity = CONFIG.LIGHTING.SPOT_LIGHT.INTENSITY / intensity;
+    }
+
     if (SceneState.renderer) {
         SceneState.renderer.toneMappingExposure = Math.max(0.3, intensity);
     }
 }
 
 function configureLights(scene) {
-    const pointLight = scene.getObjectByName("Point");
-    const spotLight = scene.getObjectByName("Spot");
-    
+    SceneState.pointLight = scene.getObjectByName("Point");
+    SceneState.spotLight = scene.getObjectByName("Spot");
+
+    const pointLight = SceneState.pointLight;
+    const spotLight = SceneState.spotLight;
+
     if (pointLight) {
         pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY;
         pointLight.distance = CONFIG.LIGHTING.POINT_LIGHT.DISTANCE;
@@ -196,6 +227,61 @@ function configureLights(scene) {
         spotLight.color = CONFIG.DEFAULT_LIGHT_COLOR;
     }
 }
+
+const materialPresets = {
+    black: {
+        color: 0x101010,
+        roughness: 0.5,   
+        metalness: 0.5,   
+        name: 'AbajurOutside',
+    },
+    wood: {
+        color: 0xffd9b3,
+        roughness: 0.8,   
+        metalness: 0.0,   
+        name: 'AbajurOutside',
+        map: new THREE.TextureLoader().load('../../../models/produto/2648/textures/mdf-bp-tauari-guararapes-imagem-01-transformed.webp'),
+        normalMap: new THREE.TextureLoader().load('../../../models/produto/2648/textures/2K-fabric_60_normal.jpg'),
+        normalScale: new THREE.Vector2(0, 0),
+        roughnessMap: new THREE.TextureLoader().load('../../../models/produto/2648/textures/tauari roughness.webp'),
+    },
+    inox: {
+        color: 0xffffff,
+        roughness: 0.4,
+        metalness: 0.7,
+        envMapIntensity: 1.0,
+        name: 'AbajurOutside',
+        map: new THREE.TextureLoader().load('../../../models/produto/2648/textures/Diffuse.jpg'),
+        normalMap: new THREE.TextureLoader().load('../../../models/produto/2648/textures/Normal.jpg'),
+        normalScale: new THREE.Vector2(0.5, 0.5),
+        roughnessMap: new THREE.TextureLoader().load('../../../models/produto/2648/textures/Roughness.jpg'),
+    }
+};
+
+function updateAbajurMaterial(materialType) {
+    const abajur = SceneState.scene.getObjectByName("Abajur");
+    
+    if (!abajur) {
+        console.warn("Abajur object not found in scene");
+        return;
+    }
+    const materialProperties = materialPresets[materialType];
+    if (!materialProperties) {
+        console.warn(`Material type '${materialType}' not found in presets`);
+        return;
+    }
+
+    const newMaterial = new THREE.MeshStandardMaterial(materialProperties);
+
+    abajur.traverse((node) => {
+        if (node.isMesh) {
+            if (node.material.name === "AbajurOutside") {
+                node.material = newMaterial;
+            }
+        }
+    });
+}
+
 
 async function loadBlenderScene(scene) {
     return new Promise((resolve, reject) => {
@@ -244,13 +330,7 @@ async function loadModel(scene) {
                     SceneState.support.position.set(0, 0, 0);
                 }
 
-                // Enable shadows for the model
-                gltf.scene.traverse((node) => {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                    }
-                });
+                initializeAnimations(gltf);
 
                 resolve();
             },
@@ -304,25 +384,6 @@ async function initScene() {
     }
 }
 
-function initializeAnimation() {
-    let deltaTime = 0;
-    const clock = new THREE.Clock();
-    
-    function animate() {
-        if (!SceneState.renderer) return;
-
-        requestAnimationFrame(animate);
-        deltaTime += clock.getDelta();
-
-        if (deltaTime < CONFIG.ANIMATION.MIN_FRAME_TIME) return;
-
-        SceneState.renderer.render(SceneState.scene, SceneState.camera);
-        deltaTime = deltaTime % CONFIG.ANIMATION.MIN_FRAME_TIME;
-    }
-    
-    animate();
-}
-
 async function init3DScene() {
     if(SceneState.scene) return;
 
@@ -351,6 +412,137 @@ async function init3DScene() {
         cleanup3D();
     }
 }
+
+function initializeAnimations(gltf) {
+    AnimationState.mixer = new THREE.AnimationMixer(gltf.scene);
+    
+    // Initialize all animations
+    AnimationState.animations = gltf.animations.map(clip => {
+        const action = AnimationState.mixer.clipAction(clip);
+        action.setLoop(THREE.LoopOnce);
+        action.clampWhenFinished = true;
+        return action;
+    });
+    
+    // Start all animations but pause them immediately
+    AnimationState.animations.forEach(action => {
+        action.play();
+        action.paused = true;
+    });
+    
+    // Set initial frame
+    AnimationState.mixer.setTime(0);
+    AnimationState.currentFrame = 0;
+}
+
+function updateAnimation(deltaTime) {
+    if (!AnimationState.mixer || !AnimationState.isPlaying) return;
+
+    const currentFrame = Math.round(AnimationState.mixer.time * CONFIG.ANIMATION.FRAMES_PER_SECOND);
+    
+    // Check if we've reached the target frame
+    if ((AnimationState.direction > 0 && currentFrame >= AnimationState.targetFrame) ||
+        (AnimationState.direction < 0 && currentFrame <= AnimationState.targetFrame)) {
+        
+        AnimationState.isPlaying = false;
+        AnimationState.direction = 0;
+        AnimationState.currentFrame = AnimationState.targetFrame;
+        
+        // Ensure we're exactly at the target frame
+        AnimationState.mixer.setTime(AnimationState.targetFrame / CONFIG.ANIMATION.FRAMES_PER_SECOND);
+        
+        // Pause all animations
+        AnimationState.animations.forEach(action => {
+            action.paused = true;
+        });
+        
+        if (AnimationState.onFrameCallback) {
+            AnimationState.onFrameCallback({
+                currentFrame: AnimationState.targetFrame,
+                targetFrame: AnimationState.targetFrame,
+                status: 'completed'
+            });
+        }
+        return;
+    }
+
+    // Update all animations
+    AnimationState.animations.forEach(action => {
+        action.paused = false;
+    });
+    
+    // Update the mixer with the correct direction and speed
+    AnimationState.mixer.update(deltaTime * AnimationState.direction * AnimationState.speed);
+    AnimationState.currentFrame = currentFrame;
+
+    if (AnimationState.onFrameCallback) {
+        AnimationState.onFrameCallback({
+            currentFrame: currentFrame,
+            targetFrame: AnimationState.targetFrame,
+            status: 'playing'
+        });
+    }
+}
+
+function playToFrame(targetFrame, onFrame = null) {
+    if (!AnimationState.mixer) return;
+
+    const currentFrame = Math.round(AnimationState.mixer.time * CONFIG.ANIMATION.FRAMES_PER_SECOND);
+    
+    // Don't do anything if we're already at the target frame
+    if (currentFrame === targetFrame) return;
+    
+    AnimationState.onFrameCallback = onFrame;
+    AnimationState.direction = targetFrame > currentFrame ? 1 : -1;
+    AnimationState.targetFrame = targetFrame;
+    AnimationState.isPlaying = true;
+
+    // Unpause all animations
+    AnimationState.animations.forEach(action => {
+        action.paused = false;
+    });
+
+    if (AnimationState.onFrameCallback) {
+        AnimationState.onFrameCallback({
+            currentFrame: currentFrame,
+            targetFrame: targetFrame,
+            status: 'started'
+        });
+    }
+}
+
+function stopAnimation() {
+    if (!AnimationState.mixer) return;
+    
+    AnimationState.isPlaying = false;
+    AnimationState.direction = 0;
+    
+    // Pause all animations
+    AnimationState.animations.forEach(action => {
+        action.paused = true;
+    });
+}
+
+function setAnimationSpeed(speed) {
+    AnimationState.speed = speed;
+}
+
+function initializeAnimation() {
+    const animate = () => {
+        if(!SceneState.renderer) return;
+        requestAnimationFrame(animate);
+        
+        if (AnimationState.mixer) {
+            const delta = AnimationState.clock.getDelta();
+            updateAnimation(delta);
+        }
+        
+        SceneState.renderer.render(SceneState.scene, SceneState.camera);
+    };
+    
+    animate();
+}
+
 
 
 function cleanup3D() {
