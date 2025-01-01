@@ -8,8 +8,6 @@
     <link href="../../../dist/styles.css" rel="stylesheet">
     <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <script async src="../../../node_modules/es-module-shims.js"></script>
     <script type="importmap">
         {
           "imports": {
@@ -17,7 +15,7 @@
             "three/addons/": "../../../node_modules/three/examples/jsm/"
             }
           }
-        </script>
+    </script>
     <script type="module" defer src="../../../scripts/main.js"></script>
 </head>
 
@@ -409,14 +407,14 @@
                         </svg>
                     </button>
                     <div class="hidden dropdown-content absolute z-10 w-full bg-white border border-black mt-1">
-                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="../../../images/produto/2648/1.jpg" data-text="Preto" onclick="updateAbajurMaterial('black')">
-                            <img src="../../../images/produto/2648/1.jpg" alt="Aplique Preto" class="w-8 h-fit mr-4 rounded-full border"> Preto
+                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="../../../images/produto/2648/cores/preto.jpg" data-text="Preto" onclick="updateAbajurMaterial('black')">
+                            <img src="../../../images/produto/2648/cores/preto.jpg" alt="Aplique Preto" class="w-8 h-fit mr-4 rounded-full border"> Preto
                         </button>
-                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="https://via.placeholder.com/20/ff0000/ffffff" data-text="Madeira" onclick="updateAbajurMaterial('wood')">
-                            <img src="https://via.placeholder.com/20/ff0000/ffffff" alt="Aplique Madeira" class="w-8 h-fit mr-4 rounded-full"> Madeira
+                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="../../../images/produto/2648/cores/madeira.jpg" data-text="Madeira" onclick="updateAbajurMaterial('wood')">
+                            <img src="../../../images/produto/2648/cores/madeira.jpg" alt="Aplique Madeira" class="w-8 h-fit mr-4 rounded-full border"> Madeira
                         </button>
-                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="https://via.placeholder.com/20/00ff00/ffffff" data-text="Inox" onclick="updateAbajurMaterial('inox')">
-                            <img src="https://via.placeholder.com/20/00ff00/ffffff" alt="Aplique Inox" class="w-8 h-fit mr-4 rounded-full"> Inox
+                        <button class="dropdown-item text-left p-2 w-full flex items-center" data-img="../../../images/produto/2648/cores/inox.jpg" data-text="Inox" onclick="updateAbajurMaterial('inox')">
+                            <img src="../../../images/produto/2648/cores/inox.jpg" alt="Aplique Inox" class="w-8 h-fit mr-4 rounded-full border"> Inox
                         </button>
                     </div>
                 </div>
@@ -425,7 +423,7 @@
 
                     <div class="dropdown relative w-full lg:mr-2 mt-2">
                         <button class="dropdown-toggle flex items-center justify-between w-full h-12 border border-black p-2 text-black font-bold hover:drop-shadow bg-white">
-                            <span id="dropdown-text">Iluminação</span>
+                            <span id="dropdown-text">Iluminação Ambiente</span>
                             <svg class="w-6 h-6" viewBox="0 0 11 11" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M10.3609 4.85123H9.23597C9.17209 4.85123 9.11098 4.87901 9.06792 4.92762L6.02776 8.43165V0.611107C6.02776 0.549998 5.97776 0.5 5.91665 0.5H5.08335C5.02224 0.5 4.97224 0.549998 4.97224 0.611107V8.43165L1.93207 4.92762C1.89041 4.87901 1.8293 4.85123 1.76402 4.85123H0.639064C0.544623 4.85123 0.493236 4.96373 0.555734 5.03456L5.16529 10.3469C5.20696 10.3949 5.25847 10.4335 5.31634 10.4599C5.37421 10.4863 5.43708 10.5 5.50069 10.5C5.56431 10.5 5.62718 10.4863 5.68505 10.4599C5.74292 10.4335 5.79443 10.3949 5.8361 10.3469L10.4443 5.03456C10.5068 4.96234 10.4554 4.85123 10.3609 4.85123Z" />
                             </svg>
@@ -451,6 +449,18 @@
                         </div>
                     </div>
 
+                </div>
+                
+                <div class="flex items-center mt-2 border border-black p-2 justify-between text-black font-bold hover:drop-shadow bg-white">
+                    <span>Iluminação Aplique</span>
+                    <div class="flex items-center space-x-2">
+                        <span>Desligado</span>
+                        <label class="relative inline-flex items-center cursor-pointer" >
+                            <input type="checkbox" class="sr-only peer" checked onclick="toggleLightState();"/>
+                            <div class="w-12 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-rose-500 rounded-full peer-checked:bg-rose-500 peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        </label>
+                        <span>Ligado</span>
+                    </div>
                 </div>                
                 <p class="text-gray-400 text-sm mt-4 line-through"><span>139,00 €</span> -20%</p>
                 <p class="text-rose-500 font-bold text-3xl">111,20 €</p>

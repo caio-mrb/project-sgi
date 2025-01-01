@@ -15,6 +15,7 @@ const SceneState = {
     cylindricalBulb: null,
     sphericalBulb: null,
     blenderScene: null,
+    lightState: 1,
     //Lighting components
     sky: null,
     sun: null,
@@ -22,6 +23,7 @@ const SceneState = {
     spotLight: null,
     ambientLight: null,
     hemisphereLight: null,
+    lightIntensity: null,
     //Loading state
     loadingComplete: false,
     isLoading: true,
@@ -86,10 +88,8 @@ window.toggleViewType = toggleViewType;
 window.updateDaytime = updateDaytime;
 window.updateAbajurMaterial = updateAbajurMaterial;
 
-
 window.playToFrame = playToFrame;
-window.stopAnimation = stopAnimation;
-window.setAnimationSpeed = setAnimationSpeed;
+window.toggleLightState = toggleLightState;
 
 function initializeRenderer(container) {
     if (!container) {
@@ -186,26 +186,34 @@ function updateDaytime(elevation, azimuth) {
 
     // Adjust lighting based on time of day
     const timeOfDay = (elevation + 90) / 180;
-    const intensity = Math.max(0.1, timeOfDay);
+    SceneState.lightIntensity = Math.max(0.1, timeOfDay);
 
     if (SceneState.hemisphereLight) {
-        SceneState.hemisphereLight.intensity = CONFIG.LIGHTING.HEMISPHERE.INTENSITY * intensity;
+        SceneState.hemisphereLight.intensity = CONFIG.LIGHTING.HEMISPHERE.INTENSITY * SceneState.lightIntensity;
     }
     if (SceneState.ambientLight) {
-        SceneState.ambientLight.intensity = CONFIG.LIGHTING.AMBIENT.INTENSITY * intensity;
+        SceneState.ambientLight.intensity = CONFIG.LIGHTING.AMBIENT.INTENSITY * SceneState.lightIntensity;
     }
 
     if(SceneState.pointLight) {
-        SceneState.pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY / intensity;
+        SceneState.pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY * SceneState.lightState / SceneState.lightIntensity;
     }
     
     if(SceneState.spotLight) {
-        SceneState.spotLight.intensity = CONFIG.LIGHTING.SPOT_LIGHT.INTENSITY / intensity;
+        SceneState.spotLight.intensity = CONFIG.LIGHTING.SPOT_LIGHT.INTENSITY * SceneState.lightState / SceneState.lightIntensity;
     }
 
     if (SceneState.renderer) {
-        SceneState.renderer.toneMappingExposure = Math.max(0.3, intensity);
+        SceneState.renderer.toneMappingExposure = Math.max(0.3, SceneState.lightIntensity);
     }
+}
+
+function toggleLightState() {
+    SceneState.lightState = 1 - SceneState.lightState;
+    
+    if (!SceneState.scene) return;
+    SceneState.pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY * SceneState.lightState / SceneState.lightIntensity;
+    SceneState.spotLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY * SceneState.lightState / SceneState.lightIntensity;
 }
 
 function configureLights(scene) {
@@ -216,13 +224,13 @@ function configureLights(scene) {
     const spotLight = SceneState.spotLight;
 
     if (pointLight) {
-        pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY;
+        pointLight.intensity = CONFIG.LIGHTING.POINT_LIGHT.INTENSITY * SceneState.lightState;
         pointLight.distance = CONFIG.LIGHTING.POINT_LIGHT.DISTANCE;
         pointLight.color = CONFIG.DEFAULT_LIGHT_COLOR;
     }
     
     if (spotLight) {
-        spotLight.intensity = CONFIG.LIGHTING.SPOT_LIGHT.INTENSITY;
+        spotLight.intensity = CONFIG.LIGHTING.SPOT_LIGHT.INTENSITY * SceneState.lightState;
         spotLight.distance = CONFIG.LIGHTING.SPOT_LIGHT.DISTANCE;
         spotLight.color = CONFIG.DEFAULT_LIGHT_COLOR;
     }
@@ -511,22 +519,6 @@ function playToFrame(targetFrame, onFrame = null) {
     }
 }
 
-function stopAnimation() {
-    if (!AnimationState.mixer) return;
-    
-    AnimationState.isPlaying = false;
-    AnimationState.direction = 0;
-    
-    // Pause all animations
-    AnimationState.animations.forEach(action => {
-        action.paused = true;
-    });
-}
-
-function setAnimationSpeed(speed) {
-    AnimationState.speed = speed;
-}
-
 function initializeAnimation() {
     const animate = () => {
         if(!SceneState.renderer) return;
@@ -562,6 +554,7 @@ function cleanup3D() {
    
     // Reset scene state
     Object.keys(SceneState).forEach(key => {
+        if(key === "lightState") return
         SceneState[key] = null;
     });
     
